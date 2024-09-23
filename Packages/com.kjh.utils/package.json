@@ -1,0 +1,19 @@
+{
+  "name": "com.kjh.utils",
+  "version": "0.0.1",
+  "displayName": "KJH Utils",
+  "description": "This package contains utils made by KJH",
+  "unity": "2022.3",
+  "unityRelease": "28f1",
+  "documentationUrl": "https://example.com/",
+  "changelogUrl": "https://example.com/changelog.html",
+  "licensesUrl": "https://example.com/licensing.html",
+  "keywords": [
+    "keyword"
+  ],
+  "author": {
+    "name": "KoenJH",
+    "email": "unity@example.com",
+    "url": "https://github.com/Koen-H/KJH-Utils/tree/master/com.kjh.utils"
+  }
+}

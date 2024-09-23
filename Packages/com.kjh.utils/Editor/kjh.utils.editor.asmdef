@@ -1,0 +1,16 @@
+{
+    "name": "kjh.utils.editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:5f022b287713cc74bb5df45a00e82038"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
