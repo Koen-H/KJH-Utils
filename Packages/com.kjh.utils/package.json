@@ -8,8 +8,12 @@
   "documentationUrl": "https://example.com/",
   "changelogUrl": "https://example.com/changelog.html",
   "licensesUrl": "https://example.com/licensing.html",
+  "dependencies": {},
+  "thirdPartyPackages": {
+    "com.eflatun.scenereference": "https://github.com/starikcetin/Eflatun.SceneReference.git#4.1.1"
+  },
   "keywords": [
-    "keyword"
+    "keyword1"
   ],
   "author": {
     "name": "KoenJH",
