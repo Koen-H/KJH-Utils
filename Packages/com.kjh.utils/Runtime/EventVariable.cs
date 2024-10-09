@@ -16,13 +16,18 @@ namespace KJH.Utils
             {
                 if (!EqualityComparer<T>.Default.Equals(this.value, value))
                 {
+                    T oldValue = this.value;
                     this.value = value;
-                    OnValueChanged?.Invoke(value);
+
+                    OnValueChanged?.Invoke(oldValue, value);
                 }
             }
         }
 
-        public event Action<T> OnValueChanged;
+        /// <summary>
+        /// Called when the value changes, old and new value are passed as arguments.
+        /// </summary>
+        public event Action<T, T> OnValueChanged;
 
         public EventVariable() { }
 
