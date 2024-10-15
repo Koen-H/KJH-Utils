@@ -8,11 +8,38 @@ namespace KJH.Utils
     [Serializable]
     public class SerializedDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
     {
-        [SerializeField] private List<TKey> keys = new List<TKey>();
+        [SerializeField] private readonly List<TKey> keys = new List<TKey>();
 
-        [SerializeField] private List<TValue> values = new List<TValue>();
+        [SerializeField] private readonly List<TValue> values = new List<TValue>();
 
         private Dictionary<TKey, TValue> dictionary;
+
+        public Dictionary<TKey, TValue> Dict
+        {
+            get
+            {
+                InitializeDictionary();
+                return dictionary;
+            }
+        }
+
+        public Dictionary<TKey, TValue>.KeyCollection Keys
+        {
+            get
+            {
+                InitializeDictionary();
+                return dictionary.Keys;
+            }
+        }
+
+        public Dictionary<TKey, TValue>.ValueCollection Values
+        {
+            get
+            {
+                InitializeDictionary();
+                return dictionary.Values;
+            }
+        }
 
         public TValue this[TKey key]
         {
