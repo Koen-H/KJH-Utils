@@ -25,37 +25,41 @@ namespace KJH.Utils.Editor
             SerializedProperty keysProperty = property.FindPropertyRelative("keys");
             SerializedProperty valuesProperty = property.FindPropertyRelative("values");
 
-            // Draw each key-value pair
-            for (int i = 0; i < keysProperty.arraySize; i++)
+            // Check if keysProperty and valuesProperty are not null
+            if (keysProperty != null && valuesProperty != null)
             {
-                position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-
-                Rect removeButtonRect = new Rect(position.x + position.width - REMOVE_BUTTON_WIDTH, position.y, REMOVE_BUTTON_WIDTH, EditorGUIUtility.singleLineHeight);
-                if (GUI.Button(removeButtonRect, "-"))
+                // Draw each key-value pair
+                for (int i = 0; i < keysProperty.arraySize; i++)
                 {
-                    // Remove the key-value pair at the current index
-                    keysProperty.DeleteArrayElementAtIndex(i);
-                    valuesProperty.DeleteArrayElementAtIndex(i);
-                    break;
+                    position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+
+                    Rect removeButtonRect = new Rect(position.x + position.width - REMOVE_BUTTON_WIDTH, position.y, REMOVE_BUTTON_WIDTH, EditorGUIUtility.singleLineHeight);
+                    if (GUI.Button(removeButtonRect, "-"))
+                    {
+                        // Remove the key-value pair at the current index
+                        keysProperty.DeleteArrayElementAtIndex(i);
+                        valuesProperty.DeleteArrayElementAtIndex(i);
+                        break;
+                    }
+
+                    // Calculate rects for key and value fields
+                    float halfWidth = position.width / 2;
+                    SerializedProperty keyProperty = keysProperty.GetArrayElementAtIndex(i);
+                    float keyPropertyHeight = EditorGUI.GetPropertyHeight(keyProperty, true);
+                    Rect keyRect = new Rect(position.x, position.y, halfWidth - HORIZIONTAL_PADDING, EditorGUIUtility.singleLineHeight);
+
+                    // Get the height of the value property to correctly allocate space
+                    SerializedProperty valueProperty = valuesProperty.GetArrayElementAtIndex(i);
+                    float valuePropertyHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
+                    Rect valueRect = new Rect(position.x + halfWidth + HORIZIONTAL_PADDING - REMOVE_BUTTON_WIDTH, position.y, halfWidth - HORIZIONTAL_PADDING, valuePropertyHeight);
+
+                    EditorGUI.PropertyField(keyRect, keyProperty, GUIContent.none, true);
+                    EditorGUI.PropertyField(valueRect, valueProperty, GUIContent.none, true);
+
+                    float pairHeight = valuePropertyHeight > keyPropertyHeight ? valuePropertyHeight : keyPropertyHeight;
+
+                    position.y += pairHeight - EditorGUIUtility.singleLineHeight;
                 }
-
-                // Calculate rects for key and value fields
-                float halfWidth = position.width / 2;
-                SerializedProperty keyProperty = keysProperty.GetArrayElementAtIndex(i);
-                float keyPropertyHeight = EditorGUI.GetPropertyHeight(keyProperty, true);
-                Rect keyRect = new Rect(position.x, position.y, halfWidth - HORIZIONTAL_PADDING, EditorGUIUtility.singleLineHeight);
-
-                // Get the height of the value property to correctly allocate space
-                SerializedProperty valueProperty = valuesProperty.GetArrayElementAtIndex(i);
-                float valuePropertyHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
-                Rect valueRect = new Rect(position.x + halfWidth + HORIZIONTAL_PADDING - REMOVE_BUTTON_WIDTH, position.y, halfWidth - HORIZIONTAL_PADDING, valuePropertyHeight);
-
-                EditorGUI.PropertyField(keyRect, keyProperty, GUIContent.none, true);
-                EditorGUI.PropertyField(valueRect, valueProperty, GUIContent.none, true);
-
-                float pairHeight = valuePropertyHeight > keyPropertyHeight ? valuePropertyHeight : keyPropertyHeight;
-
-                position.y += pairHeight - EditorGUIUtility.singleLineHeight;
             }
 
             // Add a button to add new entries
@@ -87,19 +91,23 @@ namespace KJH.Utils.Editor
                 SerializedProperty keysProperty = property.FindPropertyRelative("keys");
                 SerializedProperty valuesProperty = property.FindPropertyRelative("values");
 
-                // Iterate over all keys and values to calculate total height
-                for (int i = 0; i < keysProperty.arraySize; i++)
+                // Check if keysProperty and valuesProperty are not null
+                if (keysProperty != null && valuesProperty != null)
                 {
-                    SerializedProperty keyProperty = keysProperty.GetArrayElementAtIndex(i);
-                    SerializedProperty valueProperty = valuesProperty.GetArrayElementAtIndex(i);
+                    // Iterate over all keys and values to calculate total height
+                    for (int i = 0; i < keysProperty.arraySize; i++)
+                    {
+                        SerializedProperty keyProperty = keysProperty.GetArrayElementAtIndex(i);
+                        SerializedProperty valueProperty = valuesProperty.GetArrayElementAtIndex(i);
 
-                    float valuePropertyHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
-                    float keyPropertyHeight = EditorGUI.GetPropertyHeight(keyProperty, true);
-                    float pairHeight = valuePropertyHeight > keyPropertyHeight ? valuePropertyHeight : keyPropertyHeight;
-                    height += pairHeight;
+                        float valuePropertyHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
+                        float keyPropertyHeight = EditorGUI.GetPropertyHeight(keyProperty, true);
+                        float pairHeight = valuePropertyHeight > keyPropertyHeight ? valuePropertyHeight : keyPropertyHeight;
+                        height += pairHeight;
 
-                    // Add standard spacing between each entry
-                    height += EditorGUIUtility.standardVerticalSpacing;
+                        // Add standard spacing between each entry
+                        height += EditorGUIUtility.standardVerticalSpacing;
+                    }
                 }
                 // Add the height for the "Add Entry" button
                 height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
