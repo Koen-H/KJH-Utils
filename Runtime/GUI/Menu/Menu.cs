@@ -30,6 +30,9 @@ namespace KJH.Utils.GUINS.MenuNS
 
             public void Dispose()
             {
+                if (button == null)
+                    return;
+
                 button.onClick.RemoveListener(Button_OnClicked);
             }
         }
@@ -69,9 +72,45 @@ namespace KJH.Utils.GUINS.MenuNS
 
             public void Dispose()
             {
+                if (dragController == null)
+                    return;
+
+                dragController.OnBeginDragAction -= DragController_OnBeginDragAction;
                 dragController.OnDragAction -= DragController_OnDrag;
+                dragController.OnEndDragAction -= DragController_OnEndDragAction;
             }
         }
+
+        private class MenuCellNavigation : IDisposable
+        {
+            private NavigationItem navigationItem;
+            private int cellIndex;
+
+            public event Action<int> OnCellSelected;
+
+            public MenuCellNavigation(NavigationItem navigationItem, int cellIndex)
+            {
+                this.cellIndex = cellIndex;
+                this.navigationItem = navigationItem;
+
+                navigationItem.OnCellNavigationItemSelected += NavigationItem_OnNavigationItemSelected;
+            }
+
+            private void NavigationItem_OnNavigationItemSelected()
+            {
+                OnCellSelected?.Invoke(cellIndex);
+            }
+
+            public void Dispose()
+            {
+                if (navigationItem == null)
+                    return;
+
+                navigationItem.OnCellNavigationItemSelected -= NavigationItem_OnNavigationItemSelected;
+            }
+        }
+
+        public event Action<int> OnMenuCellSelected;
 
         public event Action<int> OnMenuCellClicked;
 
@@ -79,18 +118,48 @@ namespace KJH.Utils.GUINS.MenuNS
         public event Action<int> OnMenuCellDragged;
         public event Action<int> OnMenuCellEndDrag;
 
+        [Header("Menu Settings")]
         [SerializeField] private bool buttonSupport = false;
+        [SerializeField] private bool navigationSupport = false;
         [SerializeField] private bool dragSupport = false;
 
         private List<T1> activeMenuCells = new List<T1>();
         private List<T1> menuCells = new List<T1>();
         private List<T2> menuData = new List<T2>();
 
+        private List<MenuCellNavigation> menuCellNavigations = new List<MenuCellNavigation>();
         private List<MenuCellButton> menuCellButtons = new List<MenuCellButton>();
         private List<MenuCellDrag> menuCellDrags = new List<MenuCellDrag>();
 
+        [Header("Menu Components")]
         [SerializeField] private Transform menuCellContainer = default;
-        protected abstract T1 menuCellPrefab { get; }
+        [SerializeField] private T1 menuCellPrefab = default;
+
+        private void OnDestroy()
+        {
+            foreach (MenuCellNavigation menuCellNavigation in menuCellNavigations)
+            {
+                RemoveNavigationSubscriptions(menuCellNavigation);
+                menuCellNavigation.Dispose();
+            }
+
+            foreach (MenuCellButton menuCellButton in menuCellButtons)
+            {
+                RemoveButtonSubscriptions(menuCellButton);
+                menuCellButton.Dispose();
+            }
+
+            foreach (MenuCellDrag menuCellDrag in menuCellDrags)
+            {
+                RemoveDragSubscriptions(menuCellDrag);
+                menuCellDrag.Dispose();
+            }
+        }
+
+        private void MenuCellNavigation_OnCellSelected(int cellIndex)
+        {
+            OnMenuCellSelected?.Invoke(cellIndex);
+        }
 
         private void MenuCellButton_OnClicked(int clickedCellIndex)
         {
@@ -195,32 +264,74 @@ namespace KJH.Utils.GUINS.MenuNS
 
             if (buttonSupport)
             {
-                Button button = newCell.GetComponent<Button>();
-                if (button == null)
-                    throw new Exception($"Button component not found on menu cell prefab with name {menuCellPrefab.name}!");
-
-                MenuCellButton newButton = new MenuCellButton(button, index);
-                newButton.OnCellButtonClicked += MenuCellButton_OnClicked;
-
-                menuCellButtons.Add(newButton);
+                CreateMenuCellButton(newCell, index);
             }
 
             if (dragSupport)
+                CreateMenuCellDrag(newCell, index);
+
+            if (navigationSupport)
             {
-                DragController dragController = newCell.GetComponent<DragController>();
-                if (dragController == null)
-                    throw new Exception($"DragController component not found on menu cell prefab with name {menuCellPrefab.name}!");
-
-                MenuCellDrag newDrag = new MenuCellDrag(dragController, index);
-                newDrag.OnCellBeginDrag += MenuCellDrag_OnMenuCellBeginDrag;
-                newDrag.OnCellDragged += MenuCellDrag_OnMenuCellDragged;
-                newDrag.OnCellEndDrag += MenuCellDrag_OnMenuCellEndDrag;
-
-                menuCellDrags.Add(newDrag);
+                CreateMenuCellNavigation(newCell, index);
             }
 
             menuCells.Add(newCell);
             activeMenuCells.Add(newCell);
+        }
+
+        private void CreateMenuCellNavigation(T1 newCell, int index)
+        {
+            NavigationItem navigationItem = newCell.GetComponent<NavigationItem>();
+            if (navigationItem == null)
+                throw new Exception($"NavigationItem component not found on menu cell prefab with name {menuCellPrefab.name}!");
+
+            MenuCellNavigation newNavigation = new MenuCellNavigation(navigationItem, index);
+            newNavigation.OnCellSelected += MenuCellNavigation_OnCellSelected;
+
+            menuCellNavigations.Add(newNavigation);
+        }
+
+        private void CreateMenuCellButton(T1 newCell, int index)
+        {
+            Button button = newCell.GetComponent<Button>();
+            if (button == null)
+                throw new Exception($"Button component not found on menu cell prefab with name {menuCellPrefab.name}!");
+
+            MenuCellButton newButton = new MenuCellButton(button, index);
+            newButton.OnCellButtonClicked += MenuCellButton_OnClicked;
+
+            menuCellButtons.Add(newButton);
+        }
+
+        private void CreateMenuCellDrag(T1 newCell, int index)
+        {
+            DragController dragController = newCell.GetComponent<DragController>();
+            if (dragController == null)
+                throw new Exception($"DragController component not found on menu cell prefab with name {menuCellPrefab.name}!");
+
+            MenuCellDrag newDrag = new MenuCellDrag(dragController, index);
+            newDrag.OnCellBeginDrag += MenuCellDrag_OnMenuCellBeginDrag;
+            newDrag.OnCellDragged += MenuCellDrag_OnMenuCellDragged;
+            newDrag.OnCellEndDrag += MenuCellDrag_OnMenuCellEndDrag;
+
+            menuCellDrags.Add(newDrag);
+        }
+
+        private void RemoveNavigationSubscriptions(MenuCellNavigation menuCellNavigation)
+        {
+            menuCellNavigation.OnCellSelected -= MenuCellNavigation_OnCellSelected;
+        }
+
+        private void RemoveButtonSubscriptions(MenuCellButton menuCellButton)
+        {
+            menuCellButton.OnCellButtonClicked -= MenuCellButton_OnClicked;
+        }
+
+        private void RemoveDragSubscriptions(MenuCellDrag menuCellDrag)
+        {
+            menuCellDrag.OnCellBeginDrag -= MenuCellDrag_OnMenuCellBeginDrag;
+            menuCellDrag.OnCellDragged -= MenuCellDrag_OnMenuCellDragged;
+            menuCellDrag.OnCellEndDrag -= MenuCellDrag_OnMenuCellEndDrag;
         }
 
         public T1 GetMenuCellAtIndex(int index)

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace KJH.Utils
+namespace KJH.Utils.SerializeableNS
 {
     [Serializable]
     public class SerializedDictionary<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>

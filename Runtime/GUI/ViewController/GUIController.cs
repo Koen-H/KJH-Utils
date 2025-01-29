@@ -1,3 +1,4 @@
+using KJH.Utils.SerializeableNS;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

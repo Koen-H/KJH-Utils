@@ -6,7 +6,7 @@ namespace KJH.Utils.GUINS.MenuNS
     {
         public T Data { get; private set; }
 
-        public void SetData(T newData)
+        internal void SetData(T newData)
         {
             Data = newData;
 

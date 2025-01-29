@@ -19,5 +19,12 @@
     "name": "KoenJH",
     "email": "unity@example.com",
     "url": "https://github.com/Koen-H/KJH-Utils/tree/master/com.kjh.utils"
-  }
+  },
+  "samples": [
+        {
+            "displayName": "GUI Menu",
+            "description": "Contains sample for the GUI Menu",
+            "path": "Samples~/GUI Menu"
+        }
+    ]
 }
