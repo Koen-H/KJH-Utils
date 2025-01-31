@@ -18,7 +18,7 @@ namespace KJH.Utils
 
         protected bool SetInstance(T instance, bool dontDestroyOnLoad = true, bool overrideExisting = false)
         {
-            if (overrideExisting)
+            if (overrideExisting && _instance != null)
                 Destroy(_instance.gameObject);
 
             if (_instance == null)
